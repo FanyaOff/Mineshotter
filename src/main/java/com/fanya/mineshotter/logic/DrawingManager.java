@@ -27,7 +27,7 @@ public class DrawingManager {
         int sw = client.getWindow().getScaledWidth();
         int sh = client.getWindow().getScaledHeight();
         linesImage = new NativeImage(sw, sh, true);
-        linesTexture = new NativeImageBackedTexture(linesImage);
+        linesTexture = new NativeImageBackedTexture(() -> "lines_texture", linesImage);
         linesTextureId = Identifier.of("mineshotter", "lines");
         client.getTextureManager().registerTexture(linesTextureId, linesTexture);
     }

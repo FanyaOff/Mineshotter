@@ -41,7 +41,7 @@ public class ScreenshotScreen extends Screen implements EditorUI.EditorUIActions
 
     @Override
     protected void init() {
-        texture = new NativeImageBackedTexture(rawScreenshot);
+        texture = new NativeImageBackedTexture(() -> "screenshot_texture", rawScreenshot);
         textureId = Identifier.of("mineshotter", "screenshot");
         client.getTextureManager().registerTexture(textureId, texture);
         drawingManager.init(client);

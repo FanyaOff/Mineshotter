@@ -3,7 +3,7 @@ package com.fanya.mineshotter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
 import net.minecraft.client.MinecraftClient;
@@ -11,13 +11,15 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.texture.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import org.lwjgl.glfw.GLFW;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MineshotterClient implements ClientModInitializer {
 
+    private static final Logger LOGGER = LogManager.getLogger();
     public static KeyBinding screenshotKey;
     private static boolean captureNextFrame = false;
     private static NativeImage pendingScreenshot = null;
@@ -51,7 +53,8 @@ public class MineshotterClient implements ClientModInitializer {
             }
         });
 
-        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
+        // Replace deprecated HudRenderCallback with a modern rendering event
+        WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
             if (captureNextFrame && !capturedThisFrame) {
                 capturedThisFrame = true;
                 performCapture();
@@ -82,20 +85,20 @@ public class MineshotterClient implements ClientModInitializer {
     private static void performCapture() {
         MinecraftClient client = MinecraftClient.getInstance();
 
-        RenderSystem.recordRenderCall(() -> {
-            try {
-                if (pendingScreenshot != null) {
-                    pendingScreenshot.close();
-                }
-                pendingScreenshot = net.minecraft.client.util.ScreenshotRecorder.takeScreenshot(client.getFramebuffer());
-
-                client.execute(() -> {
-                    client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.0F));
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                captureNextFrame = false;
+        try {
+            if (pendingScreenshot != null) {
+                pendingScreenshot.close();
             }
-        });
+            net.minecraft.client.util.ScreenshotRecorder.takeScreenshot(
+                client.getFramebuffer(),
+                image -> {
+                    pendingScreenshot = image;
+                    client.execute(() -> client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.0F)));
+                }
+            );
+        } catch (Exception e) {
+            LOGGER.error("Error during screenshot capture", e);
+            captureNextFrame = false;
+        }
     }
 }
