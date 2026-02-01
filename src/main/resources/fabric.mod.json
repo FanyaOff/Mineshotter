@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "mineshotter",
+  "version": "${version}",
+  "name": "Mineshotter",
+  "description": "Simple mod to take ingame screenshots in selected area",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/mineshotter/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.fanya.mineshotter.MineshotterClient"
+    ],
+    "modmenu": [
+      "com.fanya.mineshotter.config.MineshotterModMenu"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}",
+    "cloth-config": "*"
+  }
+}

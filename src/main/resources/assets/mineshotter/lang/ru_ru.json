@@ -1,0 +1,20 @@
+{
+  "key.mineshotter.capture": "Скриншот",
+  "category.mineshotter": "Mineshotter",
+  "mineshotter.screen.title": "Mineshotter",
+  "mineshotter.chat.copied": "§a✓ Скопированно в буфер обмена!",
+  "mineshotter.chat.copy_failed": "§cОшибка во время копирования: %s",
+  "mineshotter.chat.uploaded": "§a✓ Загружено: %s",
+  "mineshotter.chat.upload_failed": "§cОшибка во время загрузки",
+  "mineshotter.chat.upload_error": "§cОшибка во время загрузки",
+  "mineshotter.editor.mode.move": "Режим передвижения",
+  "mineshotter.editor.mode.draw": "Режим рисования",
+  "mineshotter.editor.button.copy": "Коп.",
+  "mineshotter.editor.button.upload": "Загр.",
+  "mineshotter.editor.button.draw": "Рис.",
+  "mineshotter.editor.button.move": "Двиг.",
+  "mineshotter.editor.button.back": "Назад",
+  "mineshotter.editor.palette": "Палитра",
+  "mineshotter.editor.tip1": "Выберите область",
+  "mineshotter.editor.tip2": "Нажмите ENTER чтобы подтвердить"
+}
