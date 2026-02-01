@@ -3,6 +3,7 @@ package com.fanya.mineshotter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
@@ -53,9 +54,8 @@ public class MineshotterClient implements ClientModInitializer {
             }
         });
 
-        // Replace deprecated HudRenderCallback with a modern rendering event
-        WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
-            if (captureNextFrame && !capturedThisFrame) {
+        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
+            if (captureNextFrame && !capturedThisFrame && MinecraftClient.getInstance().currentScreen == null) {
                 capturedThisFrame = true;
                 performCapture();
             }
