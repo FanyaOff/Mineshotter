@@ -18,15 +18,8 @@ public class ImageResultProcessor {
 
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                int color = nativeImg.getColor(x, y);
-
-                int a = (color >>> 24) & 0xFF;  // Alpha
-                int b = (color >>> 16) & 0xFF;  // Blue
-                int g = (color >>>  8) & 0xFF;  // Green
-                int r = (color >>>  0) & 0xFF;  // Red
-
-                int argb = (a << 24) | (r << 16) | (g << 8) | b;
-                awtImg.setRGB(x, y, argb);
+                int color = nativeImg.getColorArgb(x, y);
+                awtImg.setRGB(x, y, color);
             }
         }
         nativeImg.close();

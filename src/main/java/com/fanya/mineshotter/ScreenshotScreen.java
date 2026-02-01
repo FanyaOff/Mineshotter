@@ -8,6 +8,7 @@ import com.fanya.mineshotter.util.ImageResultProcessor;
 import com.fanya.mineshotter.util.TransferableImage;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
@@ -41,7 +42,8 @@ public class ScreenshotScreen extends Screen implements EditorUI.EditorUIActions
     @Override
     protected void init() {
         texture = new NativeImageBackedTexture(rawScreenshot);
-        textureId = client.getTextureManager().registerDynamicTexture("mineshotter_screenshot", texture);
+        textureId = Identifier.of("mineshotter", "screenshot");
+        client.getTextureManager().registerTexture(textureId, texture);
         drawingManager.init(client);
     }
 
@@ -51,7 +53,7 @@ public class ScreenshotScreen extends Screen implements EditorUI.EditorUIActions
         int sw = client.getWindow().getScaledWidth();
         int sh = client.getWindow().getScaledHeight();
 
-        context.drawTexture(textureId, 0, 0, 0, 0, sw, sh, sw, sh);
+        context.drawTexture(RenderLayer::getGuiTextured,textureId, 0, 0, 0, 0, sw, sh, sw, sh);
         selectionManager.renderDimming(context, sw, sh, textRenderer);
         drawingManager.renderLines(context, client);
 

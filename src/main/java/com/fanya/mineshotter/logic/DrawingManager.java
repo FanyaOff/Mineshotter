@@ -3,6 +3,7 @@ package com.fanya.mineshotter.logic;
 import com.fanya.mineshotter.model.LineSegment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
@@ -27,7 +28,8 @@ public class DrawingManager {
         int sh = client.getWindow().getScaledHeight();
         linesImage = new NativeImage(sw, sh, true);
         linesTexture = new NativeImageBackedTexture(linesImage);
-        linesTextureId = client.getTextureManager().registerDynamicTexture("mineshotter_lines", linesTexture);
+        linesTextureId = Identifier.of("mineshotter", "lines");
+        client.getTextureManager().registerTexture(linesTextureId, linesTexture);
     }
 
     public void renderLines(DrawContext context, MinecraftClient client) {
@@ -45,7 +47,7 @@ public class DrawingManager {
 
         int sw = client.getWindow().getScaledWidth();
         int sh = client.getWindow().getScaledHeight();
-        context.drawTexture(linesTextureId, 0, 0, 0, 0, sw, sh, sw, sh);
+        context.drawTexture(RenderLayer::getGuiTextured, linesTextureId, 0, 0, 0, 0, sw, sh, sw, sh);
     }
 
     private void clearLinesTexture() {
@@ -53,7 +55,7 @@ public class DrawingManager {
         int h = linesImage.getHeight();
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                linesImage.setColor(x, y, 0);
+                linesImage.setColorArgb(x, y, 0);
             }
         }
     }
@@ -67,11 +69,6 @@ public class DrawingManager {
     }
 
     private static void bresenhamLineOnImage(NativeImage img, int x0, int y0, int x1, int y1, int color, int w, int h) {
-        int a = (color >>> 24) & 0xFF;
-        int r = (color >>> 16) & 0xFF;
-        int g = (color >>>  8) & 0xFF;
-        int b = (color >>>  0) & 0xFF;
-        int abgr = (a << 24) | (b << 16) | (g << 8) | r;
 
         int dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
         int sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
@@ -79,7 +76,7 @@ public class DrawingManager {
 
         while (true) {
             if (x0 >= 0 && x0 < w && y0 >= 0 && y0 < h) {
-                img.setColor(x0, y0, abgr);
+                img.setColorArgb(x0, y0, color);
             }
             if (x0 == x1 && y0 == y1) break;
             int e2 = 2 * err;
