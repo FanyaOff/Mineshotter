@@ -7,8 +7,10 @@ import com.fanya.mineshotter.model.LineSegment;
 import com.fanya.mineshotter.util.ImageResultProcessor;
 import com.fanya.mineshotter.util.TransferableImage;
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
@@ -64,15 +66,15 @@ public class ScreenshotScreen extends Screen implements EditorUI.EditorUIActions
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int mx = (int) mouseX;
-        int my = (int) mouseY;
+    public boolean mouseClicked(Click click, boolean doubled) {
+        int mx = (int) click.x();
+        int my = (int)click.y();
 
-        if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+        if (click.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             fullReset();
             return true;
         }
-        if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT) return super.mouseClicked(mouseX, mouseY, button);
+        if (click.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) return super.mouseClicked(click, doubled);
 
         if (!selectionManager.selectionConfirmed) {
             if (selectionManager.selX1 == -1) {
@@ -100,8 +102,9 @@ public class ScreenshotScreen extends Screen implements EditorUI.EditorUIActions
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        int mx = (int) mouseX; int my = (int) mouseY;
+    public boolean mouseDragged(Click click, double offsetX, double offsetY) {
+        int mx = (int) click.x();
+        int my = (int) click.y();
 
         if (selectionManager.isSelecting) { selectionManager.selX2 = mx; selectionManager.selY2 = my; return true; }
         if (selectionManager.selectionConfirmed && selectionManager.moveMode && selectionManager.isDragging) {
@@ -117,11 +120,11 @@ public class ScreenshotScreen extends Screen implements EditorUI.EditorUIActions
                 return true;
             }
         }
-        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        return super.mouseDragged(click, offsetX, offsetY);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(Click click) {
         if (selectionManager.isSelecting) {
             selectionManager.isSelecting = false;
             selectionManager.confirmSelection();
@@ -130,34 +133,38 @@ public class ScreenshotScreen extends Screen implements EditorUI.EditorUIActions
         drawingManager.isDrawing = false;
         selectionManager.isDragging = false;
         selectionManager.dragType = -1;
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(click);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyInput input) {
         if (!selectionManager.selectionConfirmed) {
-            if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+            if (input.key() == GLFW.GLFW_KEY_ENTER || input.key() == GLFW.GLFW_KEY_KP_ENTER) {
                 selectionManager.confirmSelection();
                 return true;
             }
-            return super.keyPressed(keyCode, scanCode, modifiers);
+            return super.keyPressed(input);
         }
-        if (keyCode == GLFW.GLFW_KEY_M) {
+        if (input.key() == GLFW.GLFW_KEY_M) {
             selectionManager.moveMode = !selectionManager.moveMode;
             editorUI.colorPickerOpen = false;
             return true;
         }
-        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+        if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
             if (editorUI.colorPickerOpen) { editorUI.colorPickerOpen = false; return true; }
             fullReset(); return true;
         }
-        if (Screen.hasControlDown() && keyCode == GLFW.GLFW_KEY_C) { copy(); close(); return true; }
-        if (Screen.hasControlDown() && keyCode == GLFW.GLFW_KEY_Z && !selectionManager.moveMode && !drawingManager.lines.isEmpty()) {
+        if ((input.modifiers() & GLFW.GLFW_MOD_CONTROL) != 0 && input.key() == GLFW.GLFW_KEY_C) {
+            copy();  // или твой метод copy()
+            close();
+            return true;
+        }
+        if ((input.modifiers() & GLFW.GLFW_MOD_CONTROL) != 0  && input.key() == GLFW.GLFW_KEY_Z && !selectionManager.moveMode && !drawingManager.lines.isEmpty()) {
             drawingManager.lines.remove(drawingManager.lines.size() - 1);
             drawingManager.linesDirty = true;
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(input);
     }
 
     private void fullReset() {

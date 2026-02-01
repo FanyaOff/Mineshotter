@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.client.sound.PositionedSoundInstance;
@@ -19,7 +20,11 @@ import org.apache.logging.log4j.Logger;
 
 public class MineshotterClient implements ClientModInitializer {
 
+    public static final String MOD_ID = "mineshotter";
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final KeyBinding.Category MINESHOTTER_CATEGORY =
+            KeyBinding.Category.create(Identifier.of(MOD_ID, "bindings"));
+
     public static KeyBinding screenshotKey;
     private static boolean captureNextFrame = false;
     private static NativeImage pendingScreenshot = null;
@@ -34,7 +39,7 @@ public class MineshotterClient implements ClientModInitializer {
                 "key.mineshotter.capture",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_F4,
-                "category.mineshotter"
+                MINESHOTTER_CATEGORY
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -53,7 +58,6 @@ public class MineshotterClient implements ClientModInitializer {
             }
         });
 
-        // Use HudRenderCallback to capture after the HUD is drawn (hotbar, crosshair, etc.)
         HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
             if (captureNextFrame && !capturedThisFrame && MinecraftClient.getInstance().currentScreen == null) {
                 capturedThisFrame = true;
@@ -71,8 +75,8 @@ public class MineshotterClient implements ClientModInitializer {
                 }
             });
 
-            ScreenKeyboardEvents.allowKeyPress(screen).register((currentScreen, key, scancode, modifiers) -> {
-                if (screenshotKey.matchesKey(key, scancode)) {
+            ScreenKeyboardEvents.allowKeyPress(screen).register((currentScreen, input) -> {
+                if (screenshotKey.matchesKey(input)) {
                     captureNextFrame = true;
                     captureParent = currentScreen;
                     return false;
