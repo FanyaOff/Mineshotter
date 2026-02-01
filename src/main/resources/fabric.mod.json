@@ -9,6 +9,9 @@
   "license": "MIT",
   "icon": "assets/mineshotter/icon.png",
   "environment": "client",
+  "mixins": [
+    "mineshotter.mixins.json"
+  ],
   "entrypoints": {
     "client": [
       "com.fanya.mineshotter.MineshotterClient"
