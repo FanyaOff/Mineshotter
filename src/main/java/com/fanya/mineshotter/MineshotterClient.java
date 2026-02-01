@@ -3,20 +3,26 @@ package com.fanya.mineshotter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import net.minecraft.client.texture.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import org.lwjgl.glfw.GLFW;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MineshotterClient implements ClientModInitializer {
+
+    public static final String MOD_ID = "mineshotter";
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final KeyBinding.Category MINESHOTTER_CATEGORY =
+            KeyBinding.Category.create(Identifier.of(MOD_ID, "bindings"));
 
     public static KeyBinding screenshotKey;
     private static boolean captureNextFrame = false;
@@ -32,70 +38,70 @@ public class MineshotterClient implements ClientModInitializer {
                 "key.mineshotter.capture",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_F4,
-                "category.mineshotter"
+                MINESHOTTER_CATEGORY
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             capturedThisFrame = false;
 
             while (screenshotKey.wasPressed()) {
-                captureNextFrame = true;
-                captureParent = client.currentScreen;
+                requestCapture(client);
             }
 
-            if (pendingScreenshot != null) {
-                client.setScreen(new ScreenshotScreen(captureParent, pendingScreenshot));
-                pendingScreenshot = null;
-                captureParent = null;
-                captureNextFrame = false;
-            }
-        });
-
-        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
-            if (captureNextFrame && !capturedThisFrame) {
-                capturedThisFrame = true;
-                performCapture();
-            }
+            checkForPendingScreenshot(client);
         });
 
         ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
             if (screen instanceof ScreenshotScreen) return;
 
-            ScreenEvents.afterRender(screen).register((scr, context, mouseX, mouseY, tickDelta) -> {
-                if (captureNextFrame && !capturedThisFrame) {
-                    capturedThisFrame = true;
-                    performCapture();
+            ScreenKeyboardEvents.afterKeyPress(screen).register((screen1, input) -> {
+                if (screenshotKey.matchesKey(input)) {
+                    requestCapture(client);
                 }
             });
 
-            ScreenKeyboardEvents.allowKeyPress(screen).register((currentScreen, key, scancode, modifiers) -> {
-                if (screenshotKey.matchesKey(key, scancode)) {
-                    captureNextFrame = true;
-                    captureParent = currentScreen;
-                    return false;
-                }
-                return true;
-            });
+            ClientTickEvents.END_CLIENT_TICK.register(c -> checkForPendingScreenshot(c));
         });
+    }
+
+    private static void requestCapture(MinecraftClient client) {
+        captureNextFrame = true;
+        captureParent = client.currentScreen;
+    }
+
+    private static void checkForPendingScreenshot(MinecraftClient client) {
+        if (pendingScreenshot != null) {
+            client.setScreen(new ScreenshotScreen(captureParent, pendingScreenshot));
+            pendingScreenshot = null;
+            captureParent = null;
+            captureNextFrame = false;
+        }
+    }
+
+    public static void onRenderEnd() {
+        if (captureNextFrame && !capturedThisFrame) {
+            capturedThisFrame = true;
+            performCapture();
+        }
     }
 
     private static void performCapture() {
         MinecraftClient client = MinecraftClient.getInstance();
 
-        RenderSystem.recordRenderCall(() -> {
-            try {
-                if (pendingScreenshot != null) {
-                    pendingScreenshot.close();
-                }
-                pendingScreenshot = net.minecraft.client.util.ScreenshotRecorder.takeScreenshot(client.getFramebuffer());
-
-                client.execute(() -> {
-                    client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.0F));
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                captureNextFrame = false;
+        try {
+            if (pendingScreenshot != null) {
+                pendingScreenshot.close();
             }
-        });
+            net.minecraft.client.util.ScreenshotRecorder.takeScreenshot(
+                    client.getFramebuffer(),
+                    image -> {
+                        pendingScreenshot = image;
+                        client.execute(() -> client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.0F)));
+                    }
+            );
+        } catch (Exception e) {
+            LOGGER.error("Error during screenshot capture", e);
+            captureNextFrame = false;
+        }
     }
 }

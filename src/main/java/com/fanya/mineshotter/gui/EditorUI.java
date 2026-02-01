@@ -48,17 +48,17 @@ public class EditorUI {
 
         // Фон панели
         ctx.fill(px, py, px + PANEL_W, py + PANEL_H, 0xFF151515);
-        ctx.drawBorder(px, py, PANEL_W, PANEL_H, 0xFFFFFFFF);
+        drawBorder(ctx, px, py, PANEL_W, PANEL_H, 0xFFFFFFFF);
 
         // Текст режима
         Text mode = selection.moveMode ? Text.translatable("mineshotter.editor.mode.move") : Text.translatable("mineshotter.editor.mode.draw");
-        ctx.drawTextWithShadow(textRenderer, mode, px + PAD, py + PAD, 0xFFFFFF);
+        ctx.drawTextWithShadow(textRenderer, mode, px + PAD, py + PAD, 0xFFFFFFFF);
 
         // Цветовой квадрат
         int colorBoxX = px + PANEL_W - PAD - COLOR_BOX_W;
         int colorBoxY = py + PAD;
         ctx.fill(colorBoxX, colorBoxY, colorBoxX + COLOR_BOX_W, colorBoxY + COLOR_BOX_H, getCurrentColor());
-        ctx.drawBorder(colorBoxX - 1, colorBoxY - 1, COLOR_BOX_W + 2, COLOR_BOX_H + 2, 0xFFFFFFFF);
+        drawBorder(ctx, colorBoxX - 1, colorBoxY - 1, COLOR_BOX_W + 2, COLOR_BOX_H + 2, 0xFFFFFFFF);
 
         // Кнопки внизу
         int btnRowY = py + PANEL_H - BTN_H - PAD + 3;
@@ -84,12 +84,12 @@ public class EditorUI {
 
         int bg = active ? 0xFF3A3A90 : (hovered ? 0xFF404040 : 0xFF202020);
         ctx.fill(x, y, x + w, y + h, bg);
-        ctx.drawBorder(x, y, w, h, 0xFF888888);
+        drawBorder(ctx, x, y, w, h, 0xFF888888);
 
         int tw = textRenderer.getWidth(text);
         int tx = x + (w - tw) / 2;
         int ty = y + (h - textRenderer.fontHeight) / 2 + 1;
-        ctx.drawTextWithShadow(textRenderer, text, tx, ty, 0xFFFFFF);
+        ctx.drawTextWithShadow(textRenderer, text, tx, ty, 0xFFFFFFFF);
     }
 
     private void renderColorPicker(DrawContext ctx, TextRenderer textRenderer, int x, int y, int mouseX, int mouseY) {
@@ -101,9 +101,9 @@ public class EditorUI {
         int h = pad * 2 + 12 + rows * cell;
 
         ctx.fill(x, y, x + w, y + h, 0xFF101010);
-        ctx.drawBorder(x, y, w, h, 0xFFFFFFFF);
+        drawBorder(ctx, x, y, w, h, 0xFFFFFFFF);
 
-        ctx.drawTextWithShadow(textRenderer, Text.translatable("mineshotter.editor.palette"), x + pad, y + pad - 1, 0xFFFFFF);
+        ctx.drawTextWithShadow(textRenderer, Text.translatable("mineshotter.editor.palette"), x + pad, y + pad - 1, 0xFFFFFFFF);
 
         int startY = y + pad + 10;
         int count = Math.min(minecraftPalette.length, cols * rows);
@@ -121,9 +121,9 @@ public class EditorUI {
 
             if (hovered || selected) {
                 int borderColor = selected ? 0xFFFFFF00 : 0xFFFFFFFF;
-                ctx.drawBorder(px - 1, py - 1, cell + 2, cell + 2, borderColor);
+                drawBorder(ctx, px - 1, py - 1, cell + 2, cell + 2, borderColor);
             } else {
-                ctx.drawBorder(px, py, cell, cell, 0xFF303030);
+                drawBorder(ctx, px, py, cell, cell, 0xFF303030);
             }
         }
     }
@@ -212,5 +212,12 @@ public class EditorUI {
 
     public int getCurrentColor() {
         return minecraftPalette[Math.min(currentColorIndex, minecraftPalette.length - 1)];
+    }
+
+    private void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
+        context.fill(x, y, x + width, y + 1, color);
+        context.fill(x, y + height - 1, x + width, y + height, color);
+        context.fill(x, y + 1, x + 1, y + height - 1, color);
+        context.fill(x + width - 1, y + 1, x + width, y + height - 1, color);
     }
 }

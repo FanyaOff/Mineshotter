@@ -9,6 +9,9 @@
   "license": "MIT",
   "icon": "assets/mineshotter/icon.png",
   "environment": "client",
+  "mixins": [
+    "mineshotter.mixins.json"
+  ],
   "entrypoints": {
     "client": [
       "com.fanya.mineshotter.MineshotterClient"
@@ -20,7 +23,7 @@
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
-    "minecraft": "${minecraft_version}",
+    "minecraft": ">=${minecraft_version}",
     "cloth-config": "*"
   }
 }

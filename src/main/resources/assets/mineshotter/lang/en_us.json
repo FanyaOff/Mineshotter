@@ -1,6 +1,6 @@
 {
   "key.mineshotter.capture": "Capture Screenshot",
-  "category.mineshotter": "Mineshotter",
+  "key.category.mineshotter.bindings": "Mineshotter",
   "mineshotter.screen.title": "Mineshotter",
   "mineshotter.chat.copied": "§a✓ Copied to clipboard!",
   "mineshotter.chat.copy_failed": "§cCopy failed: %s",
