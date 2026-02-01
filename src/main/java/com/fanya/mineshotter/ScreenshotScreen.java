@@ -6,6 +6,7 @@ import com.fanya.mineshotter.logic.SelectionManager;
 import com.fanya.mineshotter.model.LineSegment;
 import com.fanya.mineshotter.util.ImageResultProcessor;
 import com.fanya.mineshotter.util.TransferableImage;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.RenderLayer;
@@ -53,7 +54,7 @@ public class ScreenshotScreen extends Screen implements EditorUI.EditorUIActions
         int sw = client.getWindow().getScaledWidth();
         int sh = client.getWindow().getScaledHeight();
 
-        context.drawTexture(RenderLayer::getGuiTextured,textureId, 0, 0, 0, 0, sw, sh, sw, sh);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, textureId, 0, 0, 0, 0, sw, sh, sw, sh);
         selectionManager.renderDimming(context, sw, sh, textRenderer);
         drawingManager.renderLines(context, client);
 

@@ -23,8 +23,8 @@ public class SelectionManager {
             int cy = sh / 2;
             context.fill(cx - 100, cy - 20, cx + 100, cy + 20, 0xFF000000);
             context.drawBorder(cx - 100, cy - 20, 200, 40, 0xFFFFFFFF);
-            context.drawCenteredTextWithShadow(textRenderer, Text.translatable("mineshotter.editor.tip1"), cx, cy - 10, 0xFFFFFF);
-            context.drawCenteredTextWithShadow(textRenderer, Text.translatable("mineshotter.editor.tip2"), cx, cy + 2, 0xAAAAAA);
+            context.drawCenteredTextWithShadow(textRenderer, Text.translatable("mineshotter.editor.tip1"), cx, cy - 10, 0xFFFFFFFF);
+            context.drawCenteredTextWithShadow(textRenderer, Text.translatable("mineshotter.editor.tip2"), cx, cy + 2, 0xFFAAAAAA);
             return;
         }
 
@@ -45,7 +45,7 @@ public class SelectionManager {
         String size = (x2 - x1) + "x" + (y2 - y1);
         int tw = textRenderer.getWidth(size);
         context.fill(x1, y1 - 14, x1 + tw + 4, y1, 0xFF000000);
-        context.drawTextWithShadow(textRenderer, size, x1 + 2, y1 - 12, 0xFFFFFF);
+        context.drawTextWithShadow(textRenderer, size, x1 + 2, y1 - 12, 0xFFFFFFFF);
 
         if (selectionConfirmed && moveMode) {
             renderResizeHandles(context, x1, y1, x2, y2);

@@ -2,6 +2,7 @@ package com.fanya.mineshotter.logic;
 
 import com.fanya.mineshotter.model.LineSegment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.NativeImage;
@@ -47,7 +48,7 @@ public class DrawingManager {
 
         int sw = client.getWindow().getScaledWidth();
         int sh = client.getWindow().getScaledHeight();
-        context.drawTexture(RenderLayer::getGuiTextured, linesTextureId, 0, 0, 0, 0, sw, sh, sw, sh);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, linesTextureId, 0, 0, 0, 0, sw, sh, sw, sh);
     }
 
     private void clearLinesTexture() {

@@ -52,7 +52,7 @@ public class EditorUI {
 
         // Текст режима
         Text mode = selection.moveMode ? Text.translatable("mineshotter.editor.mode.move") : Text.translatable("mineshotter.editor.mode.draw");
-        ctx.drawTextWithShadow(textRenderer, mode, px + PAD, py + PAD, 0xFFFFFF);
+        ctx.drawTextWithShadow(textRenderer, mode, px + PAD, py + PAD, 0xFFFFFFFF);
 
         // Цветовой квадрат
         int colorBoxX = px + PANEL_W - PAD - COLOR_BOX_W;
@@ -89,7 +89,7 @@ public class EditorUI {
         int tw = textRenderer.getWidth(text);
         int tx = x + (w - tw) / 2;
         int ty = y + (h - textRenderer.fontHeight) / 2 + 1;
-        ctx.drawTextWithShadow(textRenderer, text, tx, ty, 0xFFFFFF);
+        ctx.drawTextWithShadow(textRenderer, text, tx, ty, 0xFFFFFFFF);
     }
 
     private void renderColorPicker(DrawContext ctx, TextRenderer textRenderer, int x, int y, int mouseX, int mouseY) {
@@ -103,7 +103,7 @@ public class EditorUI {
         ctx.fill(x, y, x + w, y + h, 0xFF101010);
         ctx.drawBorder(x, y, w, h, 0xFFFFFFFF);
 
-        ctx.drawTextWithShadow(textRenderer, Text.translatable("mineshotter.editor.palette"), x + pad, y + pad - 1, 0xFFFFFF);
+        ctx.drawTextWithShadow(textRenderer, Text.translatable("mineshotter.editor.palette"), x + pad, y + pad - 1, 0xFFFFFFFF);
 
         int startY = y + pad + 10;
         int count = Math.min(minecraftPalette.length, cols * rows);
