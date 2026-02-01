@@ -45,37 +45,37 @@ public class MineshotterClient implements ClientModInitializer {
             capturedThisFrame = false;
 
             while (screenshotKey.wasPressed()) {
-                captureNextFrame = true;
-                captureParent = client.currentScreen;
+                requestCapture(client);
             }
 
-            if (pendingScreenshot != null) {
-                client.setScreen(new ScreenshotScreen(captureParent, pendingScreenshot));
-                pendingScreenshot = null;
-                captureParent = null;
-                captureNextFrame = false;
-            }
+            checkForPendingScreenshot(client);
         });
 
         ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
             if (screen instanceof ScreenshotScreen) return;
 
-            ScreenEvents.afterRender(screen).register((scr, context, mouseX, mouseY, tickDelta) -> {
-                if (captureNextFrame && !capturedThisFrame) {
-                    capturedThisFrame = true;
-                    performCapture();
+            ScreenKeyboardEvents.afterKeyPress(screen).register((screen1, input) -> {
+                if (screenshotKey.matchesKey(input)) {
+                    requestCapture(client);
                 }
             });
 
-            ScreenKeyboardEvents.allowKeyPress(screen).register((currentScreen, input) -> {
-                if (screenshotKey.matchesKey(input)) {
-                    captureNextFrame = true;
-                    captureParent = currentScreen;
-                    return false;
-                }
-                return true;
-            });
+            ClientTickEvents.END_CLIENT_TICK.register(c -> checkForPendingScreenshot(c));
         });
+    }
+
+    private static void requestCapture(MinecraftClient client) {
+        captureNextFrame = true;
+        captureParent = client.currentScreen;
+    }
+
+    private static void checkForPendingScreenshot(MinecraftClient client) {
+        if (pendingScreenshot != null) {
+            client.setScreen(new ScreenshotScreen(captureParent, pendingScreenshot));
+            pendingScreenshot = null;
+            captureParent = null;
+            captureNextFrame = false;
+        }
     }
 
     public static void onRenderEnd() {
@@ -93,11 +93,11 @@ public class MineshotterClient implements ClientModInitializer {
                 pendingScreenshot.close();
             }
             net.minecraft.client.util.ScreenshotRecorder.takeScreenshot(
-                client.getFramebuffer(),
-                image -> {
-                    pendingScreenshot = image;
-                    client.execute(() -> client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.0F)));
-                }
+                    client.getFramebuffer(),
+                    image -> {
+                        pendingScreenshot = image;
+                        client.execute(() -> client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.0F)));
+                    }
             );
         } catch (Exception e) {
             LOGGER.error("Error during screenshot capture", e);
