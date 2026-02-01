@@ -3,7 +3,6 @@ package com.fanya.mineshotter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
 import net.minecraft.client.MinecraftClient;
@@ -32,7 +31,6 @@ public class MineshotterClient implements ClientModInitializer {
 
         screenshotKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.mineshotter.capture",
-                InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_F4,
                 "category.mineshotter"
         ));
@@ -53,23 +51,8 @@ public class MineshotterClient implements ClientModInitializer {
             }
         });
 
-        // Use HudRenderCallback to capture after the HUD is drawn (hotbar, crosshair, etc.)
-        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
-            if (captureNextFrame && !capturedThisFrame && MinecraftClient.getInstance().currentScreen == null) {
-                capturedThisFrame = true;
-                performCapture();
-            }
-        });
-
         ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
             if (screen instanceof ScreenshotScreen) return;
-
-            ScreenEvents.afterRender(screen).register((scr, context, mouseX, mouseY, tickDelta) -> {
-                if (captureNextFrame && !capturedThisFrame) {
-                    capturedThisFrame = true;
-                    performCapture();
-                }
-            });
 
             ScreenKeyboardEvents.allowKeyPress(screen).register((currentScreen, key, scancode, modifiers) -> {
                 if (screenshotKey.matchesKey(key, scancode)) {
@@ -80,6 +63,13 @@ public class MineshotterClient implements ClientModInitializer {
                 return true;
             });
         });
+    }
+
+    public static void onRenderEnd() {
+        if (captureNextFrame && !capturedThisFrame) {
+            capturedThisFrame = true;
+            performCapture();
+        }
     }
 
     private static void performCapture() {
