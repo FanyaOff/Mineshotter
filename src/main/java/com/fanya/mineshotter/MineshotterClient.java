@@ -3,7 +3,6 @@ package com.fanya.mineshotter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
 import net.minecraft.client.MinecraftClient;
@@ -58,13 +57,6 @@ public class MineshotterClient implements ClientModInitializer {
             }
         });
 
-        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
-            if (captureNextFrame && !capturedThisFrame && MinecraftClient.getInstance().currentScreen == null) {
-                capturedThisFrame = true;
-                performCapture();
-            }
-        });
-
         ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
             if (screen instanceof ScreenshotScreen) return;
 
@@ -84,6 +76,13 @@ public class MineshotterClient implements ClientModInitializer {
                 return true;
             });
         });
+    }
+
+    public static void onRenderEnd() {
+        if (captureNextFrame && !capturedThisFrame) {
+            capturedThisFrame = true;
+            performCapture();
+        }
     }
 
     private static void performCapture() {

@@ -1,6 +1,6 @@
 {
   "key.mineshotter.capture": "Скриншот",
-  "category.mineshotter": "Mineshotter",
+  "key.category.mineshotter.bindings": "Mineshotter",
   "mineshotter.screen.title": "Mineshotter",
   "mineshotter.chat.copied": "§a✓ Скопированно в буфер обмена!",
   "mineshotter.chat.copy_failed": "§cОшибка во время копирования: %s",
