@@ -2,7 +2,8 @@
 
 Mod that helps you make clean screenshots **IN ANY GUI**: select an area, draw on it if needed, then copy it or upload and get a link.
 
-![-01-02-202620_15_44-ezgif com-speed](https://github.com/user-attachments/assets/02b4823a-a3aa-4777-ad24-0767607d9c28)
+![-01-02-202621_48_22-ezgif com-speed](https://github.com/user-attachments/assets/fde724f0-69b1-4bb9-a763-7eb5dfa0f240)
+
 
 ---
 
